@@ -1,0 +1,27 @@
+[project]
+name = "threat-intelligence-rag-assistant"
+version = "0.1.0"
+description = "An explainable RAG assistant for mapping behavior descriptions to MITRE ATT&CK Enterprise techniques."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi[standard]>=0.139.0",
+    "pydantic>=2.12.5",
+    "stix2>=3.0.1",
+]
+
+[dependency-groups]
+dev = [
+    "jupyter>=1.1.1",
+    "pytest>=8.4.2",
+    "pytest-cov>=6.2.1",
+    "ruff>=0.12.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
