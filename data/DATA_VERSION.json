@@ -1,0 +1,59 @@
+{
+  "manifest_schema_version": 1,
+  "recorded_on": "2026-08-17",
+  "dataset": {
+    "name": "MITRE ATT&CK Enterprise",
+    "domain": "enterprise-attack",
+    "publisher": "The MITRE Corporation",
+    "current_public_attack_version_at_recording": "19.1",
+    "current_public_release_date": "2026-05-12",
+    "local_snapshot_classification": "unversioned post-release snapshot",
+    "exact_tagged_release": null,
+    "stix_serialization": "STIX 2.0-style JSON bundle"
+  },
+  "source_file": {
+    "path": "data/enterprise-attack (2).json",
+    "origin": "user-supplied local file; original download URL was not recorded",
+    "size_bytes": 47953963,
+    "sha256": "f7eaf37fe53b50404084fe1fe67237278f7317e61c11ad550295722d13ede259",
+    "bundle_id": "bundle--6198013c-6f02-42a4-9713-38ea1301a1aa",
+    "bundle_object_count": 26085,
+    "latest_object_modified": "2026-08-04T20:48:45.192Z",
+    "latest_attack_pattern_modified": "2026-08-04T20:30:56.386Z"
+  },
+  "version_evidence": {
+    "x_mitre_collection_object_present": false,
+    "stix_spec_version_property_present": false,
+    "catalog_version_method": "inferred from the public ATT&CK release history at recording time",
+    "exact_release_warning": "The bundle does not declare an ATT&CK collection version and contains objects modified after the public v19.1 release date. It must not be described as byte-identical to the tagged v19.1 release. The source SHA-256 is the authoritative identifier for this project snapshot.",
+    "serialization_method": "Objects do not include the STIX 2.1 spec_version property, so the bundle is recorded as STIX 2.0-style rather than STIX 2.1."
+  },
+  "parser_scope": {
+    "active_parent_techniques": 222,
+    "active_tactics": 15,
+    "detection_strategy_links": 222,
+    "procedure_examples": 7822,
+    "subtechniques_in_source": 493,
+    "subtechniques_in_output": 0,
+    "revoked_and_deprecated_parent_techniques_in_output": 0
+  },
+  "generated_artifact": {
+    "path": "data/processed/enterprise_techniques.json",
+    "parser": "src/parser/mitre_parser.py",
+    "parser_schema_version": 1,
+    "sha256": "e01a6e1b58f158b5da88e0244cde782f6ff21fe6cf07503ca7df150667c23217"
+  },
+  "technique_documents_artifact": {
+    "generated_on": "2026-08-18",
+    "path": "data/processed/technique_documents.jsonl",
+    "builder": "src/other/technique_documents.py",
+    "document_count": 222,
+    "document_boundary": "one LangChain Document per active parent technique",
+    "sha256": "0fc90cbc3a83b271eec8df85705e6631acf13beab2f51602fca02ec879adc0f5"
+  },
+  "official_references": {
+    "attack_version_history": "https://attack.mitre.org/resources/versions/",
+    "attack_data_and_tools": "https://attack.mitre.org/resources/attack-data-and-tools/",
+    "attack_stix_data_repository": "https://github.com/mitre-attack/attack-stix-data"
+  }
+}

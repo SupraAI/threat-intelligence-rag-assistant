@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi[standard]>=0.139.0",
+    "langchain-core>=1.0.0,<2.0.0",
     "pydantic>=2.12.5",
     "stix2>=3.0.1",
 ]

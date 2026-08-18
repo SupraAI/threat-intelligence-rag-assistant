@@ -6,9 +6,9 @@ natural-language behavior description to plausible
 techniques and explains every proposed mapping with evidence and inspectable
 sources.
 
-> **Current status:** Phase 1 — parsing and normalizing the ATT&CK Enterprise
-> knowledge base. Embeddings, retrieval, and LLM generation have not been
-> implemented yet.
+> **Current status:** Phase 2 preparation — the ATT&CK bundle is normalized and
+> converted into one LangChain `Document` per active parent technique.
+> Embeddings, retrieval, and LLM generation have not been implemented yet.
 
 ## Why this project exists
 
@@ -127,14 +127,19 @@ phase.
 |   |-- enterprise-attack (2).json     # Supplied ATT&CK STIX source bundle
 |   |-- DATA_VERSION.json              # Dataset provenance and fingerprint
 |   `-- processed/
-|       `-- enterprise_techniques.json # Generated normalized dataset
+|       |-- enterprise_techniques.json # Generated normalized dataset
+|       `-- technique_documents.jsonl  # One inspectable record per Document
 |-- src/
 |   |-- __init__.py
-|   `-- parser/
+|   |-- parser/
+|   |   |-- __init__.py
+|   |   `-- mitre_parser.py
+|   `-- other/
 |       |-- __init__.py
-|       `-- mitre_parser.py
+|       `-- technique_documents.py
 |-- tests/
-|   `-- test_mitre_parser.py
+|   |-- test_mitre_parser.py
+|   `-- test_technique_documents.py
 |-- pyproject.toml
 |-- uv.lock
 |-- ROADMAP.md
@@ -190,6 +195,41 @@ The parser:
 
 Dataset provenance and the exact SHA-256 fingerprint are documented in
 [`data/DATA_VERSION.json`](data/DATA_VERSION.json).
+
+## Build the LangChain technique documents
+
+Create one LangChain `Document` per normalized parent technique:
+
+```bash
+uv run python -m src.other.technique_documents
+```
+
+The in-memory objects follow this contract:
+
+```python
+Document(
+    id="T1001",
+    page_content="ATT&CK technique T1001: Data Obfuscation...",
+    metadata={
+        "attack_id": "T1001",
+        "name": "Data Obfuscation",
+        "tactic_ids": ["TA0011"],
+        "tactic_names": ["Command and Control"],
+        "platforms": ["Linux", "Windows"],
+        "source_url": "https://attack.mitre.org/techniques/T1001",
+    },
+)
+```
+
+- `page_content` is the text that BM25 and the embedding model will index.
+- `metadata` preserves identity, filters, provenance, and citation information.
+- `id` is the stable ATT&CK technique identifier.
+
+The command also writes `data/processed/technique_documents.jsonl` so the
+documents can be inspected without Python. This JSONL file is not a vector
+store: every line is only a serialized representation of one LangChain
+document. The next stage will feed the same in-memory documents into BM25 and
+an embedding index.
 
 ## Evaluation strategy
 
