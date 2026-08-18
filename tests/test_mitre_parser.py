@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from src.parser.mitre_parser import (
+from threat_intelligence_rag.ingestion.mitre_parser import (
     MitreParserError,
     parse_enterprise_attack_bundle,
     parse_enterprise_attack_file,

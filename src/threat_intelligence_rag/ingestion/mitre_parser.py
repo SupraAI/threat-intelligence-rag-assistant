@@ -5,7 +5,7 @@ Sub-techniques, revoked techniques, and deprecated techniques are excluded.
 
 Run from the project root with:
 
-    uv run python -m src.parser.mitre_parser
+    uv run python -m threat_intelligence_rag.ingestion.mitre_parser
 """
 
 from __future__ import annotations

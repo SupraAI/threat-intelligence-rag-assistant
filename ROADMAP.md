@@ -3,6 +3,10 @@
 The roadmap follows one rule: add one source of complexity at a time and keep a
 measurable baseline at every stage.
 
+> **Current checkpoint:** ingestion is implemented, and the lexical, dense, and
+> hybrid retrievers are operational. Phases 2 and 3 remain open until they have
+> been compared on the fixed, human-reviewed evaluation set from Phase 0.
+
 ## Phase 0 — Contract and evaluation set
 
 ### Learn

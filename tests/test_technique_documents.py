@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from langchain_core.documents import Document
 
-from src.other.technique_documents import (
+from threat_intelligence_rag.ingestion.technique_documents import (
     TechniqueDocumentError,
     build_technique_documents,
     load_technique_documents,

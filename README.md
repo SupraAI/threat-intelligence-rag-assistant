@@ -6,9 +6,9 @@ natural-language behavior description to plausible
 techniques and explains every proposed mapping with evidence and inspectable
 sources.
 
-> **Current status:** Phase 2 preparation — the ATT&CK bundle is normalized and
-> converted into one LangChain `Document` per active parent technique.
-> Embeddings, retrieval, and LLM generation have not been implemented yet.
+> **Current status:** BM25, local dense retrieval, and hybrid rank fusion are
+> implemented. The retrieval code is ready for evaluation; reranking and LLM
+> generation have not been implemented yet.
 
 ## Why this project exists
 
@@ -81,10 +81,10 @@ Versioned ATT&CK Enterprise STIX bundle
         Parse and normalize techniques
                     |
                     v
-      Lexical baseline, then embeddings
+      BM25 index + local embedding index
                     |
                     v
-       Retrieve candidate techniques
+   Retrieve independently and fuse ranks
                     |
                     v
      LLM ranks and explains candidates
@@ -130,15 +130,21 @@ phase.
 |       |-- enterprise_techniques.json # Generated normalized dataset
 |       `-- technique_documents.jsonl  # One inspectable record per Document
 |-- src/
-|   |-- __init__.py
-|   |-- parser/
-|   |   |-- __init__.py
-|   |   `-- mitre_parser.py
-|   `-- other/
-|       |-- __init__.py
-|       `-- technique_documents.py
+|   `-- threat_intelligence_rag/
+|       |-- cli/
+|       |   `-- search.py              # Hybrid-search command line interface
+|       |-- ingestion/
+|       |   |-- mitre_parser.py        # STIX -> normalized ATT&CK records
+|       |   `-- technique_documents.py # Records -> LangChain Documents
+|       `-- retrieval/
+|           |-- bm25.py                # Lexical index
+|           |-- hybrid_retriever.py    # Reciprocal Rank Fusion
+|           |-- retrieval_results.py   # Typed retrieval results
+|           |-- retriever_builder.py   # Index construction and cache reuse
+|           `-- semantic_retrieval.py  # Embeddings and vector search
 |-- tests/
 |   |-- test_mitre_parser.py
+|   |-- test_retrieval.py
 |   `-- test_technique_documents.py
 |-- pyproject.toml
 |-- uv.lock
@@ -171,13 +177,13 @@ The default command reads the supplied bundle and writes the normalized parent
 techniques to `data/processed/enterprise_techniques.json`:
 
 ```bash
-uv run python -m src.parser.mitre_parser
+uv run threat-rag-parse
 ```
 
 Explicit paths can also be provided:
 
 ```bash
-uv run python -m src.parser.mitre_parser \
+uv run threat-rag-parse \
   --input "data/enterprise-attack (2).json" \
   --output data/processed/enterprise_techniques.json
 ```
@@ -191,7 +197,7 @@ The parser:
 5. joins `uses` relationships as procedure examples;
 6. joins `detects` relationships as detection strategies;
 7. preserves IDs, timestamps, versions, platforms, references, and provenance;
-8. creates deterministic `retrieval_text` for the future search index.
+8. creates deterministic `retrieval_text` for the search indexes.
 
 Dataset provenance and the exact SHA-256 fingerprint are documented in
 [`data/DATA_VERSION.json`](data/DATA_VERSION.json).
@@ -201,7 +207,7 @@ Dataset provenance and the exact SHA-256 fingerprint are documented in
 Create one LangChain `Document` per normalized parent technique:
 
 ```bash
-uv run python -m src.other.technique_documents
+uv run threat-rag-documents
 ```
 
 The in-memory objects follow this contract:
@@ -228,8 +234,54 @@ Document(
 The command also writes `data/processed/technique_documents.jsonl` so the
 documents can be inspected without Python. This JSONL file is not a vector
 store: every line is only a serialized representation of one LangChain
-document. The next stage will feed the same in-memory documents into BM25 and
-an embedding index.
+document.
+
+## Search with BM25 and embeddings
+
+Run a hybrid search from the project root:
+
+```bash
+uv run threat-rag-search \
+  "An attacker tunnels command-and-control traffic inside DNS queries" \
+  --top-k 5 \
+  --candidate-k 20
+```
+
+The first run downloads the local `BAAI/bge-small-en-v1.5` model (about 64 MB)
+to `data/models/fastembed/` and builds `data/indexes/dense_store.json`. Later
+runs reuse the dense index while its embedding model and document fingerprint
+remain unchanged. Use `--rebuild-index` to force a rebuild.
+
+The retrieval path is intentionally explicit:
+
+1. `BM25Index` ranks exact lexical matches, including identifiers such as
+   `T1071.004` and executable names such as `rundll32.exe`.
+2. `DenseIndex` embeds the query and uses LangChain's
+   `InMemoryVectorStore` for cosine-similarity search.
+3. Each retriever independently returns up to `candidate_k` documents.
+4. `HybridRetriever` combines their ranks with Reciprocal Rank Fusion (RRF)
+   and returns `top_k` documents.
+
+RRF uses rank positions rather than adding BM25 and cosine scores, because the
+two raw score scales have different meanings. The JSON output keeps the BM25
+rank/score, dense rank/score, and fusion score for debugging. None of these
+scores is a probability that the technique is correct. `--rrf-constant`,
+`--bm25-weight`, and `--dense-weight` expose fusion parameters for controlled
+evaluation; keep their defaults until a labeled dataset justifies tuning them.
+
+The embedding adapter implements LangChain's `Embeddings` interface directly.
+This keeps LangChain in the architecture without hiding the distinction
+between document embedding, query embedding, vector search, and rank fusion.
+
+If a fresh Hugging Face download reports an Xet byte-range error, retry through
+its standard HTTPS downloader:
+
+```bash
+HF_HUB_DISABLE_XET=1 uv run threat-rag-search "your behavior description"
+```
+
+This setting changes the transfer backend; it does not disable TLS certificate
+verification.
 
 ## Evaluation strategy
 

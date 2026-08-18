@@ -39,17 +39,31 @@
   },
   "generated_artifact": {
     "path": "data/processed/enterprise_techniques.json",
-    "parser": "src/parser/mitre_parser.py",
+    "parser": "src/threat_intelligence_rag/ingestion/mitre_parser.py",
     "parser_schema_version": 1,
     "sha256": "e01a6e1b58f158b5da88e0244cde782f6ff21fe6cf07503ca7df150667c23217"
   },
   "technique_documents_artifact": {
     "generated_on": "2026-08-18",
     "path": "data/processed/technique_documents.jsonl",
-    "builder": "src/other/technique_documents.py",
+    "builder": "src/threat_intelligence_rag/ingestion/technique_documents.py",
     "document_count": 222,
     "document_boundary": "one LangChain Document per active parent technique",
     "sha256": "0fc90cbc3a83b271eec8df85705e6631acf13beab2f51602fca02ec879adc0f5"
+  },
+  "retrieval_index_artifact": {
+    "generated_on": "2026-08-18",
+    "path": "data/indexes/dense_store.json",
+    "vector_store": "LangChain InMemoryVectorStore",
+    "embedding_provider": "FastEmbed 0.8.0",
+    "embedding_model": "BAAI/bge-small-en-v1.5",
+    "fastembed_model_repository": "qdrant/bge-small-en-v1.5-onnx-q",
+    "model_repository_revision": "52398278842ec682c6f32300af41344b1c0b0bb2",
+    "embedding_dimensions": 384,
+    "document_count": 222,
+    "document_fingerprint": "a1b51087596324e02a41f0cc6e6cb7528bab69ea02e20ead37b2e9cde83fa3ee",
+    "index_sha256": "128d226ee4027ab0fbc6df1d52690f15ccf2be72d3bc664c2524f088c48c6367",
+    "manifest_sha256": "c1660848e993f74c192dc5ef041b3933bca5ac73fea5e6bf24269bbd35531b95"
   },
   "official_references": {
     "attack_version_history": "https://attack.mitre.org/resources/versions/",

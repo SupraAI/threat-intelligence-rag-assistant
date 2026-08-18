@@ -1,3 +1,5 @@
+"""Build one LangChain document per normalized ATT&CK technique."""
+
 from __future__ import annotations
 
 import argparse

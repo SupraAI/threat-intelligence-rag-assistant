@@ -8,6 +8,7 @@ __pycache__/
 .coverage
 htmlcov/
 .ipynb_checkpoints/
+:memory:.ses
 
 # Local or generated project data; keep the small provenance manifest trackable.
 /data/*
